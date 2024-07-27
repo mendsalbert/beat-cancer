@@ -1,21 +1,64 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePrivy } from "@privy-io/react-auth";
+import { db } from "../utils/dbConfig"; // Adjust the path to your dbConfig
+import { Users } from "../utils/schema"; // Adjust the path to your schema definitions
+import { eq } from "drizzle-orm"; // Import the eq function
 
-// import { useStateContext } from '../context';
 import { CustomButton } from ".";
-import { logo, menu, search, thirdweb } from "../assets";
+import { logo, menu, search } from "../assets";
 import { navlinks } from "../constants";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
-  // const { connect, address } = useStateContext();
   const { ready, authenticated, login, user, logout } = usePrivy();
 
   console.log(ready, authenticated, user);
-  const disableLogin = !ready || (ready && authenticated);
+
+  const checkAndCreateUser = useCallback(async () => {
+    try {
+      const existingUser = await db
+        .select()
+        .from(Users)
+        .where(eq(Users.createdBy, user.email.address))
+        .execute();
+
+      if (existingUser.length === 0) {
+        await db
+          .insert(Users)
+          .values({
+            folders: [], // Initialize with empty array
+            treatmentCounts: 0, // Initialize with 0
+            folder: [], // Initialize with empty array
+            createdBy: user.email.address,
+          })
+          .execute();
+      }
+    } catch (error) {
+      console.error("Error checking or creating user:", error);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (authenticated && user) {
+      checkAndCreateUser();
+    }
+  }, [authenticated, user, checkAndCreateUser]);
+
+  const handleLoginLogout = useCallback(() => {
+    if (authenticated) {
+      logout();
+    } else {
+      login().then(() => {
+        if (user) {
+          checkAndCreateUser();
+        }
+      });
+    }
+  }, [authenticated, login, logout, user, checkAndCreateUser]);
+
   return (
     <div className="flex md:flex-row flex-col-reverse justify-between mb-[35px] gap-6">
       <div className="lg:flex-1 flex flex-row max-w-[458px] py-2 pl-4 pr-2 h-[52px] bg-[#1c1c24] rounded-[100px]">
@@ -39,13 +82,7 @@ const Navbar = () => {
           btnType="button"
           title={authenticated ? "Log Out" : "Log In"}
           styles={authenticated ? "bg-[#1dc071]" : "bg-[#8c6dfd]"}
-          handleClick={() => {
-            if (authenticated) {
-              logout();
-            }
-
-            login();
-          }}
+          handleClick={handleLoginLogout}
         />
       </div>
 

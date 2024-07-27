@@ -8,32 +8,44 @@ import {
 import { useNavigate } from "react-router-dom";
 import { db } from "../../utils/dbConfig";
 import { Records } from "../../utils/schema";
-
 import { usePrivy } from "@privy-io/react-auth";
-function Index() {
+import { eq } from "drizzle-orm";
+
+const Index = () => {
   const navigate = useNavigate();
   const [foldername, setFoldername] = useState("");
   const { user } = usePrivy();
   const [userRecords, setUserRecords] = useState([]);
 
-  // useEffect(() => {
-  //   const cachedRecords = localStorage.getItem("userRecords");
-  //   if (cachedRecords) {
-  //     setUserRecords(JSON.parse(cachedRecords));
-  //   }
+  useEffect(() => {
+    if (user) {
+      fetchUserRecords(user.email.address);
+    }
+  }, [user]);
 
-  //   getAllRecordData()
-  //     .then(({ documents }) => {
-  //       const filteredRecords = documents.filter(
-  //         (record) => record.user_id === user.id
-  //       );
-  //       setUserRecords(filteredRecords);
-  //       localStorage.setItem("userRecords", JSON.stringify(filteredRecords));
-  //     })
-  //     .catch((e) => {
-  //       console.log(e);
-  //     });
-  // }, [user]);
+  const getAllRecordData = async (userEmail) => {
+    try {
+      const result = await db
+        .select()
+        .from(Records)
+        .where(eq(Records.createdBy, userEmail))
+        .execute();
+      return result;
+    } catch (error) {
+      console.error("Error fetching records:", error);
+      throw error;
+    }
+  };
+
+  const fetchUserRecords = async (userEmail) => {
+    try {
+      const records = await getAllRecordData(userEmail);
+      setUserRecords(records);
+      localStorage.setItem("userRecords", JSON.stringify(records));
+    } catch (error) {
+      console.error("Error fetching user records:", error);
+    }
+  };
 
   const handleOpenModal = () => {
     const modal = document.getElementById("hs-modal-recover-account");
@@ -52,24 +64,18 @@ function Index() {
       const result = await db
         .insert(Records)
         .values({
-          userId: 1,
+          userId: user.id,
           recordName: foldername,
           analysisResult: "",
           kanbanRecords: "",
-          createdBy: 1,
+          createdBy: user.email.address,
         })
         .returning({ insertedId: Records.id });
 
       if (result) {
-        getAllRecordData().then(({ documents }) => {
-          const filteredRecords = documents.filter(
-            (record) => record.user_id === user.id
-          );
-          setUserRecords(filteredRecords);
-          localStorage.setItem("userRecords", JSON.stringify(filteredRecords));
-          setFoldername("");
-          handleCloseModal();
-        });
+        fetchUserRecords(user.email.address);
+        setFoldername("");
+        handleCloseModal();
       }
     } catch (e) {
       console.log(e);
@@ -80,7 +86,7 @@ function Index() {
 
   const handleNavigate = (name) => {
     const filteredRecords = userRecords.filter(
-      (record) => record.record_name === name
+      (record) => record.recordName === name
     );
     console.log(filteredRecords[0]);
 
@@ -161,7 +167,7 @@ function Index() {
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
         {userRecords?.map((record) => (
           <div
-            key={record.record_name}
+            key={record.recordName}
             className="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-[#13131a] dark:border-neutral-800"
           >
             <div className="p-4 md:p-5 flex justify-between gap-x-3">
@@ -171,10 +177,10 @@ function Index() {
             </div>
 
             <a
-              onClick={() => handleNavigate(record.record_name)}
+              onClick={() => handleNavigate(record.recordName)}
               className="py-3 px-4 md:px-5 inline-flex justify-between items-center text-sm text-gray-600 border-t border-gray-200 hover:bg-gray-50 rounded-b-xl dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800 cursor-pointer"
             >
-              {record.record_name}
+              {record.recordName}
               <IconChevronRight />
             </a>
           </div>
@@ -182,6 +188,6 @@ function Index() {
       </div>
     </div>
   );
-}
+};
 
 export default Index;
