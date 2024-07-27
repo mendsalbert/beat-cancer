@@ -29,9 +29,9 @@ const Navbar = () => {
         await db
           .insert(Users)
           .values({
-            folders: [], // Initialize with empty array
-            treatmentCounts: 0, // Initialize with 0
-            folder: [], // Initialize with empty array
+            folders: [],
+            treatmentCounts: 0,
+            folder: [],
             createdBy: user.email.address,
           })
           .execute();
@@ -86,7 +86,6 @@ const Navbar = () => {
         />
       </div>
 
-      {/* Small screen navigation */}
       <div className="relative flex items-center justify-between sm:hidden">
         <div className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-[10px] bg-[#2c2f32]">
           <img
