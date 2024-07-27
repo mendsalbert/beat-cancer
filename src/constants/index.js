@@ -1,16 +1,4 @@
-import {
-  createCampaign,
-  dashboard,
-  logout,
-  payment,
-  profile,
-  records,
-  screening,
-  withdraw,
-  logo1,
-  user,
-  apps,
-} from "../assets";
+import { records, screening, user, apps } from "../assets";
 
 export const navlinks = [
   {

@@ -32,7 +32,7 @@ function SingleRecordDetails() {
   const [analyzing, setAnalyzing] = useState(false);
   const [processing, setisProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(
-    state.analysis_result || ``
+    state.analysis_result || ``,
   );
   const [filename, setFilename] = useState("");
   const handleOpenModal = () => {
@@ -76,7 +76,6 @@ function SingleRecordDetails() {
           model: "gpt-4o",
           tools: [{ type: "file_search" }],
         });
-        // A user wants to attach a file to a specific message, let's upload it.
 
         const thread = await openai.beta.threads.create({
           messages: [
@@ -84,7 +83,6 @@ function SingleRecordDetails() {
               role: "user",
               content:
                 "give a detailed treatment plan for me, make it more readable, clear and easy to understand make it paragraphs to make it more readable",
-              // Attach the new file to the message.
               attachments: [
                 { file_id: response.id, tools: [{ type: "file_search" }] },
               ],
@@ -92,15 +90,13 @@ function SingleRecordDetails() {
           ],
         });
 
-        // The thread now has a vector store in its tool resources.
-
         const stream = openai.beta.threads.runs
           .stream(thread.id, {
             assistant_id: assistant.id,
           })
           .on("textCreated", () => console.log("assistant >"))
           .on("toolCallCreated", (event) =>
-            console.log("assistant " + event.type)
+            console.log("assistant " + event.type),
           )
           .on("messageDone", async (event) => {
             if (event.content[0].type === "text") {
@@ -112,12 +108,12 @@ function SingleRecordDetails() {
               for (let annotation of annotations) {
                 text.value = text.value.replace(
                   annotation.text,
-                  "[" + index + "]"
+                  "[" + index + "]",
                 );
                 const { file_citation } = annotation;
                 if (file_citation) {
                   const citedFile = await openai.files.retrieve(
-                    file_citation.file_id
+                    file_citation.file_id,
                   );
                   citations.push("[" + index + "]" + citedFile.filename);
                 }
@@ -196,8 +192,6 @@ function SingleRecordDetails() {
     });
     navigate("/screening-schedules", { state: parsedResponse });
     setisProcessing(false);
-
-    // console.log(parsedResponse);
   };
 
   console.log(state);
@@ -207,7 +201,7 @@ function SingleRecordDetails() {
       <button
         type="button"
         onClick={handleOpenModal}
-        className="py-2 px-4 mt-6 inline-flex items-center gap-x-2 text-sm font-medium rounded-full border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-[#13131a] dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+        className="mt-6 inline-flex items-center gap-x-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-[#13131a] dark:text-white dark:hover:bg-neutral-800"
       >
         <IconFileUpload />
         Upload Reports
@@ -215,11 +209,11 @@ function SingleRecordDetails() {
       {/* modal start */}
       <div
         id="hs-modal-recover-account"
-        className="hs-overlay hidden fixed top-0 left-0 z-[80] w-full h-full bg-[#000000] bg-opacity-50 justify-center items-center"
+        className="hs-overlay fixed left-0 top-0 z-[80] hidden h-full w-full items-center justify-center bg-[#000000] bg-opacity-50"
       >
-        <div className="relative bg-white border border-gray-100 rounded-xl shadow-sm dark:bg-[#13131a] dark:border-neutral-800 w-11/12 md:w-1/2 lg:w-1/3">
+        <div className="relative w-11/12 rounded-xl border border-gray-100 bg-white shadow-sm md:w-1/2 lg:w-1/3 dark:border-neutral-800 dark:bg-[#13131a]">
           <div className="p-4 sm:p-7">
-            <div className="flex w-full max-w-xl text-center flex-col gap-1">
+            <div className="flex w-full max-w-xl flex-col gap-1 text-center">
               <span className="w-fit pb-3 pl-0.5 text-lg text-slate-700 dark:text-slate-300">
                 Upload Reports
               </span>
@@ -229,7 +223,7 @@ function SingleRecordDetails() {
                   viewBox="0 0 24 24"
                   aria-hidden="true"
                   fill="currentColor"
-                  className="w-12 h-12 opacity-75"
+                  className="h-12 w-12 opacity-75"
                 >
                   <path
                     fillRule="evenodd"
@@ -259,7 +253,7 @@ function SingleRecordDetails() {
                 <div role="status" className="mt-2">
                   <svg
                     aria-hidden="true"
-                    class="inline w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-green-500"
+                    class="inline h-8 w-8 animate-spin fill-green-500 text-gray-200 dark:text-gray-600"
                     viewBox="0 0 100 101"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
@@ -278,11 +272,11 @@ function SingleRecordDetails() {
               {uploadSuccess && (
                 <p className="mt-2 text-green-600">Upload successful!</p>
               )}
-              <span className="text-white text-left text-md">{filename}</span>
+              <span className="text-md text-left text-white">{filename}</span>
               <button
                 type="button"
                 onClick={handleFileUpload}
-                className="mt-4 py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none"
+                className="mt-4 inline-flex items-center justify-center gap-x-2 rounded-lg border border-transparent bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:pointer-events-none disabled:opacity-50"
               >
                 Upload and Analyze
               </button>
@@ -290,23 +284,23 @@ function SingleRecordDetails() {
           </div>
           <button
             onClick={handleCloseModal}
-            className="absolute top-4 right-4 text-gray-800 hover:text-gray-600 dark:text-neutral-200 dark:hover:text-neutral-400"
+            className="absolute right-4 top-4 text-gray-800 hover:text-gray-600 dark:text-neutral-200 dark:hover:text-neutral-400"
           >
             <IconX />
           </button>
         </div>
       </div>
       {/* modal end */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 w-full">
-        <div className="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-[#13131a] dark:border-neutral-800">
-          <div className="p-4 md:p-5 flex justify-between gap-x-3">
-            <div className="flex-shrink-0 flex justify-center items-center w-11 h-11 text-white rounded-full dark:text-blue-200">
+      <div className="grid w-full gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        <div className="flex flex-col rounded-xl border bg-white shadow-sm dark:border-neutral-800 dark:bg-[#13131a]">
+          <div className="flex justify-between gap-x-3 p-4 md:p-5">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full text-white dark:text-blue-200">
               <IconFolderOpen size={70} className="text-green-500" />
             </div>
           </div>
 
           <a
-            className="py-3 px-4 md:px-5 inline-flex justify-between items-center text-sm text-gray-600 border-t border-gray-200 hover:bg-gray-50 rounded-b-xl dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800"
+            className="inline-flex items-center justify-between rounded-b-xl border-t border-gray-200 px-4 py-3 text-sm text-gray-600 hover:bg-gray-50 md:px-5 dark:border-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800"
             href="#"
           >
             {state.record_name}
@@ -316,9 +310,9 @@ function SingleRecordDetails() {
       <div className="w-full">
         <div className="flex flex-col">
           <div className="-m-1.5 overflow-x-auto">
-            <div className="p-1.5 min-w-full inline-block align-middle">
-              <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden dark:bg-[#13131a] dark:border-neutral-700">
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-neutral-700">
+            <div className="inline-block min-w-full p-1.5 align-middle">
+              <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-[#13131a]">
+                <div className="border-b border-gray-200 px-6 py-4 dark:border-neutral-700">
                   <h2 className="text-xl font-semibold text-gray-800 dark:text-neutral-200">
                     Personalized AI-Driven Treatment Plan
                   </h2>
@@ -327,7 +321,7 @@ function SingleRecordDetails() {
                   </p>
                 </div>
 
-                <div className="w-full flex text-white flex-col px-6 py-4">
+                <div className="flex w-full flex-col px-6 py-4 text-white">
                   <div>
                     <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
                       Analysis Result
@@ -338,11 +332,11 @@ function SingleRecordDetails() {
                     </div>
                   </div>
 
-                  <div className="mt-5 grid sm:flex gap-2">
+                  <div className="mt-5 grid gap-2 sm:flex">
                     <button
                       type="button"
                       onClick={processTreatmentPlan}
-                      className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-800"
+                      className="inline-flex items-center gap-x-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-800 shadow-sm hover:bg-gray-50 disabled:pointer-events-none disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white dark:hover:bg-neutral-800"
                     >
                       View Treatment plan
                       <IconChevronRight size={20} />
@@ -350,7 +344,7 @@ function SingleRecordDetails() {
                         <div role="status" className="">
                           <svg
                             aria-hidden="true"
-                            class="inline w-5 h-5 text-gray-200 animate-spin dark:text-gray-600 fill-white"
+                            class="inline h-5 w-5 animate-spin fill-white text-gray-200 dark:text-gray-600"
                             viewBox="0 0 100 101"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
@@ -369,7 +363,7 @@ function SingleRecordDetails() {
                     </button>
                   </div>
                 </div>
-                <div className="px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-t border-gray-200 dark:border-neutral-700">
+                <div className="grid gap-3 border-t border-gray-200 px-6 py-4 md:flex md:items-center md:justify-between dark:border-neutral-700">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-neutral-400">
                       <span className="font-semibold text-gray-800 dark:text-neutral-200"></span>{" "}
