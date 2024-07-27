@@ -39,6 +39,8 @@
     "autoprefixer": "^10.4.13",
     "drizzle-kit": "^0.23.0",
     "postcss": "^8.4.19",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.5",
     "tailwindcss": "^3.2.4",
     "vite": "^3"
   },
