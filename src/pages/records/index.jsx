@@ -6,33 +6,34 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { createRecord, getAllRecordData } from "../../actions";
-import { usePrivy } from "@privy-io/react-auth";
+import { db } from "../../utils/dbConfig";
+import { Records } from "../../utils/schema";
 
+import { usePrivy } from "@privy-io/react-auth";
 function Index() {
   const navigate = useNavigate();
   const [foldername, setFoldername] = useState("");
   const { user } = usePrivy();
   const [userRecords, setUserRecords] = useState([]);
 
-  useEffect(() => {
-    const cachedRecords = localStorage.getItem("userRecords");
-    if (cachedRecords) {
-      setUserRecords(JSON.parse(cachedRecords));
-    }
+  // useEffect(() => {
+  //   const cachedRecords = localStorage.getItem("userRecords");
+  //   if (cachedRecords) {
+  //     setUserRecords(JSON.parse(cachedRecords));
+  //   }
 
-    getAllRecordData()
-      .then(({ documents }) => {
-        const filteredRecords = documents.filter(
-          (record) => record.user_id === user.id
-        );
-        setUserRecords(filteredRecords);
-        localStorage.setItem("userRecords", JSON.stringify(filteredRecords));
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  }, [user]);
+  //   getAllRecordData()
+  //     .then(({ documents }) => {
+  //       const filteredRecords = documents.filter(
+  //         (record) => record.user_id === user.id
+  //       );
+  //       setUserRecords(filteredRecords);
+  //       localStorage.setItem("userRecords", JSON.stringify(filteredRecords));
+  //     })
+  //     .catch((e) => {
+  //       console.log(e);
+  //     });
+  // }, [user]);
 
   const handleOpenModal = () => {
     const modal = document.getElementById("hs-modal-recover-account");
@@ -46,14 +47,20 @@ function Index() {
     modal.classList.add("hidden");
   };
 
-  const createFolder = () => {
-    createRecord({
-      user_id: user.id,
-      record_name: foldername,
-      analysis_result: "",
-      kanban_records: "",
-    })
-      .then(() => {
+  const createFolder = async () => {
+    try {
+      const result = await db
+        .insert(Records)
+        .values({
+          userId: 1,
+          recordName: foldername,
+          analysisResult: "",
+          kanbanRecords: "",
+          createdBy: 1,
+        })
+        .returning({ insertedId: Records.id });
+
+      if (result) {
         getAllRecordData().then(({ documents }) => {
           const filteredRecords = documents.filter(
             (record) => record.user_id === user.id
@@ -63,12 +70,12 @@ function Index() {
           setFoldername("");
           handleCloseModal();
         });
-      })
-      .catch((e) => {
-        console.log(e);
-        setFoldername("");
-        handleCloseModal();
-      });
+      }
+    } catch (e) {
+      console.log(e);
+      setFoldername("");
+      handleCloseModal();
+    }
   };
 
   const handleNavigate = (name) => {

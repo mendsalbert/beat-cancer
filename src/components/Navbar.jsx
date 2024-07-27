@@ -43,6 +43,7 @@ const Navbar = () => {
             if (authenticated) {
               logout();
             }
+
             login();
           }}
         />
