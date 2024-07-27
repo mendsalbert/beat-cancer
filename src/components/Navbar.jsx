@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { usePrivy } from "@privy-io/react-auth";
-import { db } from "../utils/dbConfig"; // Adjust the path to your dbConfig
-import { Users } from "../utils/schema"; // Adjust the path to your schema definitions
-import { eq } from "drizzle-orm"; // Import the eq function
+import { db } from "../utils/dbConfig";
+import { Users } from "../utils/schema";
+import { eq } from "drizzle-orm";
 
 import { CustomButton } from ".";
 import { logo, menu, search } from "../assets";
@@ -64,7 +64,7 @@ const Navbar = () => {
       <div className="flex h-[52px] max-w-[458px] flex-row rounded-[100px] bg-[#1c1c24] py-2 pl-4 pr-2 lg:flex-1">
         <input
           type="text"
-          placeholder="Search for campaigns"
+          placeholder="Search for records"
           className="flex w-full bg-transparent font-epilogue text-[14px] font-normal text-white outline-none placeholder:text-[#4b5264]"
         />
 

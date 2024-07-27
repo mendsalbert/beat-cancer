@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-import { DisplayCampaigns } from "../components";
+import { DisplayInfo } from "../components";
 import { title } from "process";
 
 const Home = () => {
@@ -21,11 +21,7 @@ const Home = () => {
   ];
 
   return (
-    <DisplayCampaigns
-      title="All Campaigns"
-      isLoading={isLoading}
-      campaigns={data}
-    />
+    <DisplayInfo title="All Campaigns" isLoading={isLoading} campaigns={data} />
   );
 };
 
