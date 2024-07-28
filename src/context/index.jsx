@@ -1,8 +1,87 @@
-import React, { useContext, createContext } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
+import { db } from "../utils/dbConfig"; // Adjust the path to your dbConfig
+import { Users, Records } from "../utils/schema"; // Adjust the path to your schema definitions
+import { eq } from "drizzle-orm";
 
+// Create a context
 const StateContext = createContext();
+
+// Provider component
 export const StateContextProvider = ({ children }) => {
-  return <StateContext.Provider>{children}</StateContext.Provider>;
+  const [users, setUsers] = useState([]);
+  const [records, setRecords] = useState([]);
+
+  // Function to fetch all users
+  const fetchUsers = useCallback(async () => {
+    try {
+      const result = await db.select().from(Users).execute();
+      setUsers(result);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }, []);
+
+  // Function to create a new user
+  const createUser = useCallback(async (userData) => {
+    try {
+      const newUser = await db
+        .insert(Users)
+        .values(userData)
+        .returning({ id: Users.id, email: Users.email })
+        .execute();
+      setUsers((prevUsers) => [...prevUsers, newUser[0]]);
+      return newUser[0];
+    } catch (error) {
+      console.error("Error creating user:", error);
+      return null;
+    }
+  }, []);
+
+  // Function to fetch all records for a specific user
+  const fetchUserRecords = useCallback(async (userEmail) => {
+    try {
+      const result = await db
+        .select()
+        .from(Records)
+        .where(eq(Records.createdBy, userEmail))
+        .execute();
+      setRecords(result);
+    } catch (error) {
+      console.error("Error fetching user records:", error);
+    }
+  }, []);
+
+  // Function to create a new record
+  const createRecord = useCallback(async (recordData) => {
+    try {
+      const newRecord = await db
+        .insert(Records)
+        .values(recordData)
+        .returning({ id: Records.id })
+        .execute();
+      setRecords((prevRecords) => [...prevRecords, newRecord[0]]);
+      return newRecord[0];
+    } catch (error) {
+      console.error("Error creating record:", error);
+      return null;
+    }
+  }, []);
+
+  return (
+    <StateContext.Provider
+      value={{
+        users,
+        records,
+        fetchUsers,
+        createUser,
+        fetchUserRecords,
+        createRecord,
+      }}
+    >
+      {children}
+    </StateContext.Provider>
+  );
 };
 
+// Custom hook to use the context
 export const useStateContext = () => useContext(StateContext);

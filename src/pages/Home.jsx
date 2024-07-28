@@ -20,9 +20,7 @@ const Home = () => {
     },
   ];
 
-  return (
-    <DisplayInfo title="All Campaigns" isLoading={isLoading} campaigns={data} />
-  );
+  return <DisplayInfo title="All Campaigns" isLoading={isLoading} />;
 };
 
 export default Home;
