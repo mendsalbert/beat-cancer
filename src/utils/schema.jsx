@@ -4,6 +4,9 @@ import { integer, varchar, pgTable, serial, text } from "drizzle-orm/pg-core";
 // users schema
 export const Users = pgTable("users", {
   id: serial("id").primaryKey(),
+  username: varchar("username").notNull(),
+  age: integer("age").notNull(),
+  location: varchar("location").notNull(),
   folders: text("folders")
     .array()
     .notNull()

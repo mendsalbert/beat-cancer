@@ -1,17 +1,23 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
-import { db } from "../utils/dbConfig"; // Adjust the path to your dbConfig
-import { Users, Records } from "../utils/schema"; // Adjust the path to your schema definitions
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { db } from "../utils/dbConfig";
+import { Users, Records } from "../utils/schema";
 import { eq } from "drizzle-orm";
+import { usePrivy } from "@privy-io/react-auth";
 
-// Create a context
 const StateContext = createContext();
 
-// Provider component
 export const StateContextProvider = ({ children }) => {
+  const { user, ready, authenticated, login, logout } = usePrivy();
   const [users, setUsers] = useState([]);
   const [records, setRecords] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
 
-  // Function to fetch all users
   const fetchUsers = useCallback(async () => {
     try {
       const result = await db.select().from(Users).execute();
@@ -21,7 +27,6 @@ export const StateContextProvider = ({ children }) => {
     }
   }, []);
 
-  // Function to create a new user
   const createUser = useCallback(async (userData) => {
     try {
       const newUser = await db
@@ -30,6 +35,7 @@ export const StateContextProvider = ({ children }) => {
         .returning({ id: Users.id, email: Users.email })
         .execute();
       setUsers((prevUsers) => [...prevUsers, newUser[0]]);
+      setCurrentUser(newUser[0]);
       return newUser[0];
     } catch (error) {
       console.error("Error creating user:", error);
@@ -37,7 +43,6 @@ export const StateContextProvider = ({ children }) => {
     }
   }, []);
 
-  // Function to fetch all records for a specific user
   const fetchUserRecords = useCallback(async (userEmail) => {
     try {
       const result = await db
@@ -51,7 +56,6 @@ export const StateContextProvider = ({ children }) => {
     }
   }, []);
 
-  // Function to create a new record
   const createRecord = useCallback(async (recordData) => {
     try {
       const newRecord = await db
@@ -67,11 +71,33 @@ export const StateContextProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    const checkUser = async () => {
+      if (user) {
+        const existingUser = await db
+          .select()
+          .from(Users)
+          .where(eq(Users.email, user.email.address))
+          .execute();
+        if (existingUser.length > 0) {
+          setCurrentUser(existingUser[0]);
+        }
+      }
+    };
+    checkUser();
+  }, [user]);
+
   return (
     <StateContext.Provider
       value={{
+        user,
+        ready,
+        authenticated,
+        login,
+        logout,
         users,
         records,
+        currentUser,
         fetchUsers,
         createUser,
         fetchUserRecords,
@@ -83,5 +109,4 @@ export const StateContextProvider = ({ children }) => {
   );
 };
 
-// Custom hook to use the context
 export const useStateContext = () => useContext(StateContext);

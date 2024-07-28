@@ -1,24 +1,39 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import { Sidebar, Navbar } from "./components";
-import { Home, Profile } from "./pages";
+import { Home, Profile, Onboarding } from "./pages";
 import MedicalRecords from "./pages/records/index";
 import ScreeningSchedule from "./pages/ScreeningSchedule";
 import SingleRecordDetails from "./pages/records/single-record-details";
+import { useStateContext } from "./context";
 
 const App = () => {
+  const { user, authenticated, ready, login, currentUser } = useStateContext();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (ready && !authenticated) {
+      // Trigger Privy login modal if the user is not authenticated
+      login();
+    } else if (user && !currentUser) {
+      // Redirect to onboarding if the user is authenticated but doesn't have a complete profile
+      navigate("/onboarding");
+    }
+  }, [user, authenticated, ready, login, currentUser, navigate]);
+
   return (
-    <div className="relative sm:-8 p-4 bg-[#13131a] min-h-screen flex flex-row">
-      <div className="sm:flex hidden mr-10 relative">
+    <div className="sm:-8 relative flex min-h-screen flex-row bg-[#13131a] p-4">
+      <div className="relative mr-10 hidden sm:flex">
         <Sidebar />
       </div>
 
-      <div className="flex-1 max-sm:w-full max-w-[1280px] mx-auto sm:pr-5">
+      <div className="mx-auto max-w-[1280px] flex-1 max-sm:w-full sm:pr-5">
         <Navbar />
 
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/medical-records" element={<MedicalRecords />} />
           <Route
             path="/medical-records/:id"

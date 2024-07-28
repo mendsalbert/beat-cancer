@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        epilogue: ["Epilogue", "sans-serif"],
+        epilogue: ["Epilogue", "sans-serif", "Poppins"],
       },
       boxShadow: {
         secondary: "10px 10px 20px rgba(2, 2, 2, 0.25)",
