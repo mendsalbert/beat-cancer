@@ -66,111 +66,66 @@ function SingleRecordDetails() {
   };
 
   const handleFileUpload = async () => {
-    if (file) {
-      setUploading(true);
-      setUploadProgress(0);
+    setUploading(true);
+    setUploadSuccess(false);
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("purpose", "fine-tune");
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
 
-      try {
-        const response = await openai.files.create({
-          purpose: "assistants",
-          file: formData.get("file"),
-        });
+    try {
+      const base64Data = await readFileAsBase64(file);
 
-        const assistant = await openai.beta.assistants.create({
-          name: "AI recommended treatment planner",
-          instructions:
-            "You are an expert cancer and any disease diagnosis analyst. Use your knowledge base to answer questions about giving personalized recommended treatments.",
-          model: "gpt-4o",
-          tools: [{ type: "file_search" }],
-        });
+      const imageParts = [
+        {
+          inlineData: {
+            data: base64Data,
+            mimeType: filetype,
+          },
+        },
+      ];
 
-        const thread = await openai.beta.threads.create({
-          messages: [
-            {
-              role: "user",
-              content:
-                "give a detailed treatment plan for me, make it more readable, clear and easy to understand make it paragraphs to make it more readable",
-              attachments: [
-                { file_id: response.id, tools: [{ type: "file_search" }] },
-              ],
-            },
-          ],
-        });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-        const stream = openai.beta.threads.runs
-          .stream(thread.id, {
-            assistant_id: assistant.id,
-          })
-          .on("textCreated", () => console.log("assistant >"))
-          .on("toolCallCreated", (event) =>
-            console.log("assistant " + event.type),
-          )
-          .on("messageDone", async (event) => {
-            if (event.content[0].type === "text") {
-              const { text } = event.content[0];
-              const { annotations } = text;
-              const citations = [];
+      const prompt = `You are an expert cancer and any disease diagnosis analyst. Use your knowledge base to answer questions about giving personalized recommended treatments.
+        give a detailed treatment plan for me, make it more readable, clear and easy to understand make it paragraphs to make it more readable
+        `;
 
-              let index = 0;
-              for (let annotation of annotations) {
-                text.value = text.value.replace(
-                  annotation.text,
-                  "[" + index + "]",
-                );
-                const { file_citation } = annotation;
-                if (file_citation) {
-                  const citedFile = await openai.files.retrieve(
-                    file_citation.file_id,
-                  );
-                  citations.push("[" + index + "]" + citedFile.filename);
-                }
-                index++;
-              }
-
-              console.log(text.value);
-              setAnalysisResult(text.value);
-              const updatedRecord = await updateRecord({
-                documentID: state.id,
-                analysisResult: text.value,
-                kanbanRecords: "",
-              });
-              console.log(updatedRecord);
-              console.log(citations.join("\n"));
-            }
-          });
-
-        console.log("stream", stream);
-        setUploadSuccess(true);
-        setFilename("");
-        setUploadProgress(100);
-      } catch (error) {
-        console.error("Error uploading file:", error);
-        setUploadSuccess(false);
-        setUploadProgress(100);
-      } finally {
-        setUploading(false);
-      }
+      const result = await model.generateContent([prompt, ...imageParts]);
+      const response = await result.response;
+      const text = response.text();
+      setAnalysisResult(text);
+      const updatedRecord = await updateRecord({
+        documentID: state.id,
+        analysisResult: text,
+        kanbanRecords: "",
+      });
+      setUploadSuccess(true);
+      setIsModalOpen(false); // Close the modal after a successful upload
+      setFilename("");
+      setFile(null);
+      setFileType("");
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setUploadSuccess(false);
+    } finally {
+      setUploading(false);
     }
   };
 
   const processTreatmentPlan = async () => {
     setIsProcessing(true);
-    const chatCompletion = await openai.chat.completions.create({
-      messages: [
-        {
-          role: "user",
-          content: `Your role and goal is to be an that will be using this treatment plan ${analysisResult} to create Columns:
+
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+
+    const prompt = `Your role and goal is to be an that will be using this treatment plan ${analysisResult} to create Columns:
                 - Todo: Tasks that need to be started
                 - Doing: Tasks that are in progress
                 - Done: Tasks that are completed
           
                 Each task should include a brief description. The tasks should be categorized appropriately based on the stage of the treatment process.
           
-                Please provide the results in the following  format for easy front-end display:
+                Please provide the results in the following  format for easy front-end display no quotating or what so ever just pure the structure below:
 
                 {
                   "columns": [
@@ -186,57 +141,27 @@ function SingleRecordDetails() {
                     { "id": "5", "columnId": "done", "content": "Example task 5" }
                   ]
                 }
-                Thank you.             
-                `,
-        },
-      ],
-      model: "gpt-4o",
-    });
-    const results = chatCompletion.choices[0].message.content;
-    const parsedResponse = JSON.parse(results);
+                            
+                `;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    const text = response.text();
+    const parsedResponse = JSON.parse(text);
+
+    console.log(text);
+    console.log(parsedResponse);
     const updatedRecord = await updateRecord({
       documentID: state.id,
-      kanbanRecords: results,
+      kanbanRecords: text,
     });
     console.log(updatedRecord);
     navigate("/screening-schedules", { state: parsedResponse });
     setIsProcessing(false);
   };
 
-  const gemini = async () => {
-    const genAI = new GoogleGenerativeAI(geminiApiKey);
-
-    const base64Data = await readFileAsBase64(file);
-    // console.log(base64Data);
-    // console.log(filetype);
-
-    const imageParts = [
-      {
-        inlineData: {
-          data: base64Data,
-          mimeType: filetype,
-        },
-      },
-    ];
-
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-    const prompt = "describe what you see on this image";
-
-    const result = await model.generateContent([prompt, ...imageParts]);
-    const response = await result.response;
-    const text = response.text();
-    console.log(text);
-  };
-
   return (
     <div className="flex flex-wrap gap-[26px]">
-      <button
-        className="cursor-pointer bg-white px-6 py-1"
-        onClick={() => gemini()}
-      >
-        Testing Gemini
-      </button>
       <button
         type="button"
         onClick={handleOpenModal}

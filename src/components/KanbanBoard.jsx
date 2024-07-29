@@ -13,19 +13,16 @@ import TaskCard from "./TaskCard";
 import { IconPlus } from "@tabler/icons-react";
 
 function KanbanBoard({ state }) {
-  console.log(state);
 
-  // Assuming the state object is nested as shown in the screenshot
-  const initialState = state[0]; // Adjusting to access the first item in the state array
 
   const defaultCols =
-    initialState?.columns?.map((col) => ({
+    state?.state?.columns?.map((col) => ({
       id: col?.id,
       title: col?.title,
     })) || [];
 
   const defaultTasks =
-    initialState?.tasks?.map((task) => ({
+    state?.state?.tasks?.map((task) => ({
       id: task?.id,
       columnId: task?.columnId,
       content: task?.content,
