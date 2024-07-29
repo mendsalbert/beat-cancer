@@ -4,8 +4,9 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useStateContext } from "../context"; // Adjust the import path
 
 import { CustomButton } from ".";
-import { logo, menu, search } from "../assets";
+import { menu, search } from "../assets";
 import { navlinks } from "../constants";
+import { IconHeartHandshake } from "@tabler/icons-react";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -14,7 +15,6 @@ const Navbar = () => {
   const { ready, authenticated, login, user, logout } = usePrivy();
   const { fetchUsers, users, fetchUserRecords } = useStateContext();
 
-  // console.log(users);
   const fetchUserInfo = useCallback(async () => {
     if (!user) return;
 
@@ -77,11 +77,7 @@ const Navbar = () => {
 
       <div className="relative flex items-center justify-between sm:hidden">
         <div className="flex h-[40px] w-[40px] cursor-pointer items-center justify-center rounded-[10px] bg-[#2c2f32]">
-          <img
-            src={logo}
-            alt="user"
-            className="h-[60%] w-[60%] object-contain"
-          />
+          <IconHeartHandshake size={40} color="#1ec070" className="p-2" />
         </div>
         <img
           src={menu}

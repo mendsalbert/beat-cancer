@@ -1,97 +1,132 @@
-## AI Cancer Care (BeatCancer: AI Assistant to Craft Personalized Cancer Care)
+<div align="center">
+  <br />
+  <a href="https://www.imghippo.com/i/ZK4zy1722288141.jpg" title="Project Screenshot" target="_blank">
+    <img src="https://i.imghippo.com/files/ZK4zy1722288141.jpg" width="100%" alt="Project Screenshot"/>
+  </a>
+  <br />
+  <div>
+    <img src="https://img.shields.io/badge/-JavaScript-black?style=for-the-badge&logoColor=white&logo=javascript&color=F7DF1E" alt="javascript" />
+    <img src="https://img.shields.io/badge/-Gemini AI-black?style=for-the-badge&logoColor=white&logo=gemini&color=412991" alt="gemini ai" />
+  </div>
+  <h3 align="center">AI Cancer Care (BeatCancer: AI Assistant to Craft Personalized Cancer Care)</h3>
+  <div align="center">
+    Welcome to the AI Cancer Care project, a revolutionary AI assistant designed to provide personalized cancer care by analyzing patient data, guidelines, and medical records. Our goal is to identify screening gaps and create tailored treatment plans to improve patient outcomes.
+  </div>
+</div>
 
-Welcome to the AI Cancer Care project, a revolutionary AI assistant designed to provide personalized cancer care by analyzing patient data, guidelines, and medical records. Our goal is to identify screening gaps and create tailored treatment plans to improve patient outcomes.
+## 📋 Table of Contents
 
-### Inspiration
+1. 🤖 [Introduction](#introduction)
+2. 🔋 [Features](#features)
+3. 🏆 [Inspiration](#inspiration)
+4. ⚙️ [Setup and Deployment](#setup-and-deployment)
+5. 🚀 [Usage](#usage)
+6. 🌠 [Gemini AI Integration](#gemini-ai-integration)
+7. 🤝 [Contributing](#contributing)
+8. 📜 [License](#license)
+
+## 🤖 Introduction
+
+AI Cancer Care provides an easy and efficient way to craft personalized cancer care using AI. It interacts with the Gemini AI to analyze and generate detailed treatment plans based on patient data and medical records.
+
+## 🔋 Features
+
+- **Personalized Treatment Plans**: Analyzes patient data, medical records, and guidelines to identify gaps in cancer screening and follow-up care, crafting tailored treatment plans for individual patients.
+- **Secure Data Sharing**: Shares sensitive data securely using encryption and cryptographic features, protecting patient information while facilitating necessary data access for healthcare providers.
+
+## 🏆 Inspiration
 
 This project is deeply personal to me. My grandmother recently passed away from cancer, and witnessing her struggle firsthand inspired me to create a solution that could help others in similar situations. She often faced difficulties in coordinating her care and keeping track of her treatment plan, which sometimes led to missed appointments and delayed treatments. I wanted to build an application that could alleviate these challenges for other patients and their families.
 
-### Key Features
+## ⚙️ Setup and Deployment
 
-1. **Personalized Treatment Plans**
+### Prerequisites
 
-   - Analyzes patient data, medical records, and guidelines.
-   - Identifies gaps in cancer screening and follow-up care.
-   - Crafts tailored treatment plans for individual patients.
+- Node.js and npm installed
 
-2. **Secure Data Sharing**
-   - Shares sensitive data securely using StarkNet’s encryption and cryptographic features.
-   - Protects patient information while facilitating necessary data access for healthcare providers.
-
-### Problem Statement
-
-Patients often need to consult multiple specialists and healthcare providers, making it challenging to keep track of their treatment plans and screening schedules. This situation can lead to missed screenings, delayed diagnoses, and suboptimal treatment outcomes.
-
-One of our users shared their experience: _"This is great news. My wife is battling cancer now. We’ve spent hours of manual research to try to get ahead of it. Another good medical idea: Load all of your lab results in and let AI recommend treatment plans. Even for non-cancer."_
-
-### Solution
-
-Our AI assistant addresses these challenges by:
-
-- Automating the analysis of medical records and patient data.
-- Providing clear, personalized treatment recommendations.
-- Highlighting any missed screenings or necessary follow-up actions.
-- Leveraging advanced cryptographic techniques to maintain patient privacy and data security.
-
-### How to Use
-
-1. **Upload Reports**
-
-   - Patients or healthcare providers can upload medical reports directly into the system.
-
-2. **View Treatment Plan**
-
-   - The AI assistant generates a detailed treatment plan based on the uploaded data and identified gaps.
-
-3. **Track Progress**
-   - Patients can monitor their progress, completed screenings, and upcoming appointments through a user-friendly dashboard.
-
-### Dashboard and User Interface
-
-Our user interface is designed to provide a comprehensive view of the patient's treatment journey. Key features include:
-
-- **Specialist Appointments Pending**
-  - Displays pending appointments with specialists that need attention.
-- **Treatment Progress Update**
-
-  - Shows the number of specialist visits completed and overall treatment progress.
-
-- **Metrics and Analytics**
-  - Provides insights into total folders, screenings, completed screenings, pending screenings, and overdue screenings.
-
-### Screenshots
-
-![Screenshot](https://i.ibb.co/Ph4919n/Screenshot-2024-06-26-at-9-12-01-AM.png)
-![Screenshot](https://i.ibb.co/qRY3Lxs/Screenshot-2024-06-26-at-9-14-31-AM.png)
-![Screenshot](https://i.ibb.co/vJPVVKZ/Screenshot-2024-06-26-at-9-12-11-AM.png)
-
-### Getting Started
-
-To get started, follow these simple steps:
+### Steps
 
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/mendsalbert/BeatCancer.git
+   git clone https://github.com/mendsalbert/beat-cancer.git
+   cd beat-cancer
    ```
 
 2. **Install Dependencies**
 
    ```bash
-   cd beatcancer
    npm install
    ```
 
-### Integration with Theta Network
+3. **Setup Environment Variables**
 
-Building this application involved integrating various advanced technologies to ensure it meets the needs of cancer patients and healthcare providers. One critical aspect was leveraging the Theta Edge Network and Llama 3 8B for the following purposes:
+   Create a `.env` file in the root directory with the following content:
 
-- **Enhanced Scalability and Performance**: Deploying Llama 3 8B on Theta Edge Network improves the scalability and performance of our AI models, allowing for real-time processing of patient data.
-- **Advanced Generative AI**: By utilizing generative AI models, we can provide nuanced and precise treatment recommendations, significantly enhancing patient outcomes.
-- **Secure Data Handling**: Using Theta’s cryptographic features ensures secure data sharing and patient privacy, addressing critical concerns in healthcare.
+   ```plaintext
+   VITE_GEMINI_API_KEY='Gemini api key here'
+   ```
 
-### Impact and Benefits
+4. **Build the Project**
 
-- **Improved Patient Outcomes**: Personalized treatment plans and timely screenings lead to better health outcomes.
-- **Data Security**: StarkNet encryption ensures patient data privacy.
-- **Efficient Care Coordination**: Automated analysis and treatment recommendations streamline patient care, reducing the burden on healthcare providers.
+   ```bash
+   npm run build
+   ```
+
+## 🚀 Usage
+
+1. **Upload Reports**: Patients or healthcare providers can upload medical reports directly into the system.
+2. **View Treatment Plan**: The AI assistant generates a detailed treatment plan based on the uploaded data and identified gaps.
+3. **Track Progress**: Patients can monitor their progress, completed screenings, and upcoming appointments through a user-friendly dashboard.
+
+## 🌠 Gemini AI Integration
+
+Incorporating Gemini AI into our system provides additional layers of analysis and generative capabilities:
+
+- **Detailed Image Analysis**: Gemini AI can process medical images uploaded by patients or healthcare providers, offering advanced diagnostic insights.
+- **Advanced Natural Language Processing**: Enhances the accuracy of treatment plans and patient data analysis.
+- **Scalable AI Infrastructure**: Leveraging Gemini AI's robust infrastructure allows for real-time data processing and analysis.
+
+### Example of Using Gemini AI:
+
+```javascript
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const genAI = new GoogleGenerativeAI(process.env.VITE_GEMINI_API_KEY);
+
+const readFileAsBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(",")[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
+const handleFileUpload = async (file, filetype) => {
+  const base64Data = await readFileAsBase64(file);
+  const imageParts = [
+    {
+      inlineData: {
+        data: base64Data,
+        mimeType: filetype,
+      },
+    },
+  ];
+
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+  const prompt = "Analyze this medical image and provide insights.";
+
+  const result = await model.generateContent([prompt, ...imageParts]);
+  const response = await result.response;
+  console.log(response.text());
+};
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request for any improvements or bug fixes.
+
+## 📜 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

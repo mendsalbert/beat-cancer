@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useStateContext } from "../context"; // Adjust the import path if necessary
+import { useStateContext } from "../context";
 import { usePrivy } from "@privy-io/react-auth";
 
 const Profile = () => {
