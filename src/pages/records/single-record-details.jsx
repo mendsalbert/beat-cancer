@@ -7,8 +7,10 @@ import ReactMarkdown from "react-markdown";
 import FileUploadModal from "./components/file-upload-modal";
 import RecordDetailsHeader from "./components/record-details-header";
 import LoadingSpinner from "./components/loading-spinner";
-
+import { GoogleGenerativeAI } from "@google/generative-ai";
 const apiKey = import.meta.env.VITE_API_KEY;
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
 const openai = new OpenAI({
   apiKey: apiKey,
   dangerouslyAllowBrowser: true,
@@ -26,6 +28,7 @@ function SingleRecordDetails() {
     state.analysisResult || "",
   );
   const [filename, setFilename] = useState("");
+  const [filetype, setFileType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const {
@@ -47,8 +50,19 @@ function SingleRecordDetails() {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    console.log("Selected file:", file);
+    setFileType(file.type);
     setFilename(file.name);
     setFile(file);
+  };
+
+  const readFileAsBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(",")[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleFileUpload = async () => {
@@ -149,15 +163,15 @@ function SingleRecordDetails() {
       messages: [
         {
           role: "user",
-          content: `using this treatment plan ${analysisResult} create  Columns:
+          content: `Your role and goal is to be an that will be using this treatment plan ${analysisResult} to create Columns:
                 - Todo: Tasks that need to be started
                 - Doing: Tasks that are in progress
                 - Done: Tasks that are completed
           
                 Each task should include a brief description. The tasks should be categorized appropriately based on the stage of the treatment process.
           
-                Please use the following JSON format for the response:
-          
+                Please provide the results in the following  format for easy front-end display:
+
                 {
                   "columns": [
                     { "id": "todo", "title": "Todo" },
@@ -172,9 +186,7 @@ function SingleRecordDetails() {
                     { "id": "5", "columnId": "done", "content": "Example task 5" }
                   ]
                 }
-          
-                Use the treatment plan to create an effective Kanban board for managing the treatment.
-                let your response to be only array in javascript return no other text and also removing the markdown quotes
+                Thank you.             
                 `,
         },
       ],
@@ -191,8 +203,40 @@ function SingleRecordDetails() {
     setIsProcessing(false);
   };
 
+  const gemini = async () => {
+    const genAI = new GoogleGenerativeAI(geminiApiKey);
+
+    const base64Data = await readFileAsBase64(file);
+    // console.log(base64Data);
+    // console.log(filetype);
+
+    const imageParts = [
+      {
+        inlineData: {
+          data: base64Data,
+          mimeType: filetype,
+        },
+      },
+    ];
+
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = "describe what you see on this image";
+
+    const result = await model.generateContent([prompt, ...imageParts]);
+    const response = await result.response;
+    const text = response.text();
+    console.log(text);
+  };
+
   return (
     <div className="flex flex-wrap gap-[26px]">
+      <button
+        className="cursor-pointer bg-white px-6 py-1"
+        onClick={() => gemini()}
+      >
+        Testing Gemini
+      </button>
       <button
         type="button"
         onClick={handleOpenModal}

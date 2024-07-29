@@ -1285,6 +1285,11 @@
   dependencies:
     google-gax "^3.0.1"
 
+"@google/generative-ai@^0.16.0":
+  version "0.16.0"
+  resolved "https://registry.npmjs.org/@google/generative-ai/-/generative-ai-0.16.0.tgz"
+  integrity sha512-doB5ZNxS6m+jUZqaLCeYXfBZCdq6Ho0ibkq5/17xe1qAUZpCLWlvCDGtqFPqqO+yezNmvGatS0KhV22yiOT3DA==
+
 "@google/model-viewer@^2.1.1":
   version "2.1.1"
   resolved "https://registry.npmjs.org/@google/model-viewer/-/model-viewer-2.1.1.tgz"
