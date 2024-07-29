@@ -8,13 +8,13 @@ import {
   IconUserScan,
 } from "@tabler/icons-react";
 import { usePrivy } from "@privy-io/react-auth";
-import { getAllRecordData } from "../actions";
 import MetricsCard from "./MetricsCard"; // Adjust the import path
+import { useStateContext } from "../context"; // Ensure correct import path
 
 const DisplayInfo = () => {
   const navigate = useNavigate();
   const { user } = usePrivy();
-  const [userRecords, setUserRecords] = useState([]);
+  const { fetchUserRecords, records, fetchUserByEmail } = useStateContext();
   const [metrics, setMetrics] = useState({
     totalFolders: 0,
     aiPersonalizedTreatment: 0,
@@ -26,41 +26,37 @@ const DisplayInfo = () => {
 
   useEffect(() => {
     if (user) {
-      getAllRecordData()
-        .then(({ documents }) => {
-          const filteredRecords = documents.filter(
-            (record) => record.user_id === user.id,
-          );
-          setUserRecords(filteredRecords);
-
-          const totalFolders = filteredRecords.length;
+      fetchUserByEmail(user.email.address)
+        .then(() => {
+          console.log(records);
+          const totalFolders = records.length;
           let aiPersonalizedTreatment = 0;
           let totalScreenings = 0;
           let completedScreenings = 0;
           let pendingScreenings = 0;
           let overdueScreenings = 0;
 
-          filteredRecords.forEach((record) => {
-            if (record.kanban_records) {
+          records.forEach((record) => {
+            if (record.kanbanRecords) {
               try {
-                const kanban = JSON.parse(record.kanban_records);
-                aiPersonalizedTreatment += kanban[0].columns.some(
+                const kanban = JSON.parse(record.kanbanRecords);
+                aiPersonalizedTreatment += kanban.columns.some(
                   (column) => column.title === "AI Personalized Treatment",
                 )
                   ? 1
                   : 0;
-                totalScreenings += kanban[0].tasks.length;
-                completedScreenings += kanban[0].tasks.filter(
+                totalScreenings += kanban.tasks.length;
+                completedScreenings += kanban.tasks.filter(
                   (task) => task.columnId === "done",
                 ).length;
-                pendingScreenings += kanban[0].tasks.filter(
+                pendingScreenings += kanban.tasks.filter(
                   (task) => task.columnId === "doing",
                 ).length;
-                overdueScreenings += kanban[0].tasks.filter(
+                overdueScreenings += kanban.tasks.filter(
                   (task) => task.columnId === "overdue",
                 ).length;
               } catch (error) {
-                console.error("Failed to parse kanban_records:", error);
+                console.error("Failed to parse kanbanRecords:", error);
               }
             }
           });
@@ -78,7 +74,7 @@ const DisplayInfo = () => {
           console.log(e);
         });
     }
-  }, [user]);
+  }, [user, fetchUserRecords, records]);
 
   const getProgress = (completed, total) => {
     if (total === 0) return 0;

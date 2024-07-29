@@ -5,7 +5,7 @@ const Modal = ({ title, children, isOpen, onClose, onAction, actionLabel }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed left-0 top-0 z-[80] flex h-full w-full items-center justify-center bg-[#000000] bg-opacity-50">
+    <div className="fixed left-0 top-0 z-[80] flex h-full w-full items-center justify-center bg-[#13131a] bg-opacity-90">
       <div className="relative w-11/12 rounded-xl border border-gray-200 bg-white shadow-sm md:w-1/2 lg:w-1/3 dark:border-neutral-800 dark:bg-[#13131a]">
         <div className="p-4 sm:p-7">
           <div className="text-center">

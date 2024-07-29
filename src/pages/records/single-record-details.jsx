@@ -1,20 +1,17 @@
 import React, { useState } from "react";
-import { IconChevronRight, IconFileUpload } from "@tabler/icons-react";
+import {
+  IconChevronRight,
+  IconFileUpload,
+  IconProgress,
+} from "@tabler/icons-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import OpenAI from "openai";
 import { useStateContext } from "../../context/index";
 import ReactMarkdown from "react-markdown";
 import FileUploadModal from "./components/file-upload-modal";
 import RecordDetailsHeader from "./components/record-details-header";
-import LoadingSpinner from "./components/loading-spinner";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-const apiKey = import.meta.env.VITE_API_KEY;
-const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
-const openai = new OpenAI({
-  apiKey: apiKey,
-  dangerouslyAllowBrowser: true,
-});
+const geminiApiKey = import.meta.env.VITE_GEMINI_API_KEY;
 
 function SingleRecordDetails() {
   const { state } = useLocation();
@@ -210,7 +207,12 @@ function SingleRecordDetails() {
                     >
                       View Treatment plan
                       <IconChevronRight size={20} />
-                      {processing && <LoadingSpinner size={5} />}
+                      {processing && (
+                        <IconProgress
+                          size={10}
+                          className="mr-3 h-5 w-5 animate-spin"
+                        />
+                      )}
                     </button>
                   </div>
                 </div>
