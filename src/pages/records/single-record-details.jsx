@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { IconChevronRight, IconFileUpload } from "@tabler/icons-react";
 import { useLocation, useNavigate } from "react-router-dom";
 import OpenAI from "openai";
-import { updateRecrod } from "../../actions";
+import { useStateContext } from "../../context/index";
 import ReactMarkdown from "react-markdown";
-import FileUploadModal from "./components/file-upload-modal"; // Adjust the import path
-import RecordDetailsHeader from "./components/record-details-header"; // Adjust the import path
-import LoadingSpinner from "./components/loading-spinner"; // Adjust the import path
+import FileUploadModal from "./components/file-upload-modal";
+import RecordDetailsHeader from "./components/record-details-header";
+import LoadingSpinner from "./components/loading-spinner";
 
 const apiKey = import.meta.env.VITE_API_KEY;
 const openai = new OpenAI({
@@ -21,12 +21,21 @@ function SingleRecordDetails() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [processing, setisProcessing] = useState(false);
+  const [processing, setIsProcessing] = useState(false);
   const [analysisResult, setAnalysisResult] = useState(
-    state.analysis_result || ``,
+    state.analysisResult || "",
   );
   const [filename, setFilename] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const {
+    records,
+    fetchUserRecords,
+    createRecord,
+    fetchUserByEmail,
+    currentUser,
+    updateRecord,
+  } = useStateContext();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -110,12 +119,12 @@ function SingleRecordDetails() {
 
               console.log(text.value);
               setAnalysisResult(text.value);
-              const updateRecord = await updateRecrod({
-                documentID: state.$id,
-                analysis_result: text.value,
-                kanban_records: "",
+              const updatedRecord = await updateRecord({
+                documentID: state.id,
+                analysisResult: text.value,
+                kanbanRecords: "",
               });
-              console.log(updateRecord);
+              console.log(updatedRecord);
               console.log(citations.join("\n"));
             }
           });
@@ -135,7 +144,7 @@ function SingleRecordDetails() {
   };
 
   const processTreatmentPlan = async () => {
-    setisProcessing(true);
+    setIsProcessing(true);
     const chatCompletion = await openai.chat.completions.create({
       messages: [
         {
@@ -173,13 +182,13 @@ function SingleRecordDetails() {
     });
     const results = chatCompletion.choices[0].message.content;
     const parsedResponse = JSON.parse(results);
-    const updateRecord = await updateRecrod({
-      documentID: state.$id,
-      analysis_result: analysisResult,
-      kanban_records: results,
+    const updatedRecord = await updateRecord({
+      documentID: state.id,
+      kanbanRecords: results,
     });
+    console.log(updatedRecord);
     navigate("/screening-schedules", { state: parsedResponse });
-    setisProcessing(false);
+    setIsProcessing(false);
   };
 
   return (
@@ -201,7 +210,7 @@ function SingleRecordDetails() {
         uploadSuccess={uploadSuccess}
         filename={filename}
       />
-      <RecordDetailsHeader recordName={state.record_name} />
+      <RecordDetailsHeader recordName={state.recordName} />
       <div className="w-full">
         <div className="flex flex-col">
           <div className="-m-1.5 overflow-x-auto">

@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { usePrivy } from "@privy-io/react-auth";
-import { db } from "../utils/dbConfig";
-import { Users } from "../utils/schema";
-import { eq } from "drizzle-orm";
+import { useStateContext } from "../context"; // Adjust the import path
 
 import { CustomButton } from ".";
 import { logo, menu, search } from "../assets";
@@ -14,38 +12,30 @@ const Navbar = () => {
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
   const { ready, authenticated, login, user, logout } = usePrivy();
+  const { fetchUsers, users, fetchUserRecords } = useStateContext();
 
-  console.log(ready, authenticated, user);
+  // console.log(users);
+  const fetchUserInfo = useCallback(async () => {
+    if (!user) return;
 
-  const checkAndCreateUser = useCallback(async () => {
     try {
-      const existingUser = await db
-        .select()
-        .from(Users)
-        .where(eq(Users.createdBy, user.email.address))
-        .execute();
-
-      if (existingUser.length === 0) {
-        await db
-          .insert(Users)
-          .values({
-            folders: [],
-            treatmentCounts: 0,
-            folder: [],
-            createdBy: user.email.address,
-          })
-          .execute();
+      await fetchUsers();
+      const existingUser = users.find(
+        (u) => u.createdBy === user.email.address,
+      );
+      if (existingUser) {
+        await fetchUserRecords(user.email.address);
       }
     } catch (error) {
-      console.error("Error checking or creating user:", error);
+      console.error("Error fetching user info:", error);
     }
-  }, [user]);
+  }, [user, fetchUsers, users, fetchUserRecords]);
 
   useEffect(() => {
     if (authenticated && user) {
-      checkAndCreateUser();
+      fetchUserInfo();
     }
-  }, [authenticated, user, checkAndCreateUser]);
+  }, [authenticated, user, fetchUserInfo]);
 
   const handleLoginLogout = useCallback(() => {
     if (authenticated) {
@@ -53,11 +43,11 @@ const Navbar = () => {
     } else {
       login().then(() => {
         if (user) {
-          checkAndCreateUser();
+          fetchUserInfo();
         }
       });
     }
-  }, [authenticated, login, logout, user, checkAndCreateUser]);
+  }, [authenticated, login, logout, user, fetchUserInfo]);
 
   return (
     <div className="mb-[35px] flex flex-col-reverse justify-between gap-6 md:flex-row">
@@ -67,7 +57,6 @@ const Navbar = () => {
           placeholder="Search for records"
           className="flex w-full bg-transparent font-epilogue text-[14px] font-normal text-white outline-none placeholder:text-[#4b5264]"
         />
-
         <div className="flex h-full w-[72px] cursor-pointer items-center justify-center rounded-[20px] bg-[#4acd8d]">
           <img
             src={search}
@@ -94,14 +83,12 @@ const Navbar = () => {
             className="h-[60%] w-[60%] object-contain"
           />
         </div>
-
         <img
           src={menu}
           alt="menu"
           className="h-[34px] w-[34px] cursor-pointer object-contain"
           onClick={() => setToggleDrawer((prev) => !prev)}
         />
-
         <div
           className={`absolute left-0 right-0 top-[60px] z-10 bg-[#1c1c24] py-4 shadow-secondary ${
             !toggleDrawer ? "-translate-y-[100vh]" : "translate-y-0"
@@ -111,9 +98,7 @@ const Navbar = () => {
             {navlinks.map((link) => (
               <li
                 key={link.name}
-                className={`flex p-4 ${
-                  isActive === link.name && "bg-[#3a3a43]"
-                }`}
+                className={`flex p-4 ${isActive === link.name && "bg-[#3a3a43]"}`}
                 onClick={() => {
                   setIsActive(link.name);
                   setToggleDrawer(false);
@@ -137,7 +122,6 @@ const Navbar = () => {
               </li>
             ))}
           </ul>
-
           <div className="mx-4 flex"></div>
         </div>
       </div>

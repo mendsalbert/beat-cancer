@@ -9,15 +9,22 @@ import RecordCard from "./components/record-card"; // Adjust the import path
 const Index = () => {
   const navigate = useNavigate();
   const { user } = usePrivy();
-  const { records, fetchUserRecords, createRecord } = useStateContext();
+  const {
+    records,
+    fetchUserRecords,
+    createRecord,
+    fetchUserByEmail,
+    currentUser,
+  } = useStateContext();
   const [userRecords, setUserRecords] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
+      fetchUserByEmail(user.email.address);
       fetchUserRecords(user.email.address);
     }
-  }, [user, fetchUserRecords]);
+  }, [user, fetchUserByEmail, fetchUserRecords]);
 
   useEffect(() => {
     setUserRecords(records);
@@ -34,17 +41,19 @@ const Index = () => {
 
   const createFolder = async (foldername) => {
     try {
-      const newRecord = await createRecord({
-        userId: user.id,
-        recordName: foldername,
-        analysisResult: "",
-        kanbanRecords: "",
-        createdBy: user.email.address,
-      });
+      if (currentUser) {
+        const newRecord = await createRecord({
+          userId: currentUser.id,
+          recordName: foldername,
+          analysisResult: "",
+          kanbanRecords: "",
+          createdBy: user.email.address,
+        });
 
-      if (newRecord) {
-        fetchUserRecords(user.email.address);
-        handleCloseModal();
+        if (newRecord) {
+          fetchUserRecords(user.email.address);
+          handleCloseModal();
+        }
       }
     } catch (e) {
       console.log(e);
