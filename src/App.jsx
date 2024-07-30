@@ -13,10 +13,8 @@ const App = () => {
 
   useEffect(() => {
     if (ready && !authenticated) {
-      // Trigger Privy login modal if the user is not authenticated
       login();
     } else if (user && !currentUser) {
-      // Redirect to onboarding if the user is authenticated but doesn't have a complete profile
       navigate("/onboarding");
     }
   }, [user, authenticated, ready, login, currentUser, navigate]);

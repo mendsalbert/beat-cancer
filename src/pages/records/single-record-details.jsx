@@ -17,7 +17,6 @@ function SingleRecordDetails() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const [file, setFile] = useState(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [processing, setIsProcessing] = useState(false);
@@ -28,14 +27,7 @@ function SingleRecordDetails() {
   const [filetype, setFileType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {
-    records,
-    fetchUserRecords,
-    createRecord,
-    fetchUserByEmail,
-    currentUser,
-    updateRecord,
-  } = useStateContext();
+  const { updateRecord } = useStateContext();
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
